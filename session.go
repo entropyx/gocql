@@ -18,7 +18,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/gocql/gocql/internal/lru"
+	"github.com/entropyx/gocql/internal/lru"
 )
 
 // Session is the interface used by users to interact with the database.
@@ -1068,7 +1068,7 @@ func (q *Query) PageState(state []byte) *Query {
 // CAS operations which do not end in Cas.
 //
 // See https://issues.apache.org/jira/browse/CASSANDRA-11099
-// https://github.com/gocql/gocql/issues/612
+// https://github.com/entropyx/gocql/issues/612
 func (q *Query) NoSkipMetadata() *Query {
 	q.disableSkipMetadata = true
 	return q
@@ -1340,6 +1340,7 @@ func (iter *Iter) readColumn() ([]byte, error) {
 // be called afterwards to retrieve any potential errors.
 func (iter *Iter) Scan(dest ...interface{}) bool {
 	if iter.err != nil {
+		fmt.Println("Error1:", iter.err)
 		return false
 	}
 
@@ -1359,6 +1360,7 @@ func (iter *Iter) Scan(dest ...interface{}) bool {
 	// as scanning in more values from a single column
 	if len(dest) != iter.meta.actualColCount {
 		iter.err = fmt.Errorf("gocql: not enough columns to scan into: have %d want %d", len(dest), iter.meta.actualColCount)
+		fmt.Println("Error2:", iter.err)
 		return false
 	}
 
@@ -1369,12 +1371,14 @@ func (iter *Iter) Scan(dest ...interface{}) bool {
 		colBytes, err := iter.readColumn()
 		if err != nil {
 			iter.err = err
+			fmt.Println("Error3:", iter.err)
 			return false
 		}
 
 		n, err := scanColumn(colBytes, col, dest[i:])
 		if err != nil {
 			iter.err = err
+			fmt.Println("Error4:", iter.err)
 			return false
 		}
 		i += n
@@ -1944,7 +1948,7 @@ var (
 	ErrUnavailable          = errors.New("unavailable")
 	ErrUnsupported          = errors.New("feature not supported")
 	ErrTooManyStmts         = errors.New("too many statements")
-	ErrUseStmt              = errors.New("use statements aren't supported. Please see https://github.com/gocql/gocql for explanation.")
+	ErrUseStmt              = errors.New("use statements aren't supported. Please see https://github.com/entropyx/gocql for explanation.")
 	ErrSessionClosed        = errors.New("session has been closed")
 	ErrNoConnections        = errors.New("gocql: no hosts available in the pool")
 	ErrNoKeyspace           = errors.New("no keyspace provided")
